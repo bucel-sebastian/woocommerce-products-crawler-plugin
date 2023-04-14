@@ -45,7 +45,6 @@
         if($_GET['action']==='fetch'){
             foreach ($furnizori as $furnizor) {
                 ?><div>
-                <?php echo var_dump($furnizor); ?>
                 </div><br><br>
                
                 <?php
@@ -158,16 +157,17 @@ $selector_options = "";
 
 <div class="wrap">
     
-    <h1>di Crawler de produse</h1>
+    <h1>Retailromania API</h1>
     <h3>Categorii</h3>
     
-   <form method="POST" action='admin.php?page=di-crawler-admin-categori' >
+   <form  method="POST" action='admin.php?page=di-crawler-admin-categori' >
         <select name="furnizor-selector" id="furnizor-selector">
 			<option selected="selected" value="" disabled>Selecteaza furnizor</option>
             <?php echo $selectorFurnizori;?>
 		</select>
         <button type='submit' class='button button-primary'>Salveaza</button>
-    <table class="widefat fixed" cellspacing="0" >
+        <a href="admin.php?page=di-crawler-admin-categori&action=fetch" class="button button-secondary">Reincarca</a>
+    <table style="margin-top:10px;" class="widefat fixed" cellspacing="0" >
         <thead>
             <tr>
                 <th>
@@ -231,6 +231,12 @@ $selector_options = "";
                 furnizorSelector.dispatchEvent(new Event('change'));
             <?php 
                 }
+            if(isset($_GET['id'])){
+                ?>
+                furnizorSelector.value = '<?php echo $_GET['id']; ?>';
+                furnizorSelector.dispatchEvent(new Event('change'));
+            <?php 
+            }
         ?>
 
 

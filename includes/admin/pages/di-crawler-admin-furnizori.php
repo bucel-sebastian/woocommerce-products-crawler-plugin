@@ -9,6 +9,15 @@ if(isset($_POST['nume_furnizor']) && isset($_POST['url_furnizor'])){
 
     $nume_furnizor = $_POST['nume_furnizor'];
     $url_furnizor = $_POST['url_furnizor'];
+    $url_furnizor = rtrim($url_furnizor,"/");
+    $shipping = $_POST['shipping_furnizor'];
+    $shipping_rate = $_POST['shipping_rate_furnizor'];
+    $shipping_free = $_POST['shipping_free_furnizor'];
+    
+    $shipping_class_array = array(
+        "rate"=>$shipping_rate,
+        "free"=>$shipping_free
+    );
 
     $api_token = uniqid('di',false);
 
@@ -22,12 +31,24 @@ if(isset($_POST['nume_furnizor']) && isset($_POST['url_furnizor'])){
         'api_status'=>'0',
         'api_status_date'=>date('Y-m-d H:i:s'),
         'add_date'=>date('Y-m-d H:i:s'),
-        
+        'shipping'=>$shipping,
+        'shipping_class'=>json_encode($shipping_class_array)
     );
-    $format = array('%s','%s','%s','%s','%s','%s');
+    $format = array('%s','%s','%s','%s','%s','%s','%s','%s');
     $wpdb->insert($table,$data,$format);
-    
+    echo '<div class="notice notice-success notice-alt"><p>Partenerul a fost adaugat cu succes!</p></div>';
+}
 
+if(isset($_GET['action'])){
+    if($_GET['action'] === "delete"){
+        $id = $_GET['id'];
+        $wpdb->delete($wpdb->prefix . 'di_crawler_furnizori', array(
+            "id"=>$id
+        ));
+        
+        echo '<div class="notice notice-success notice-alt"><p>Partenerul a fost sters cu succes!</p></div>';
+
+    }
 }
 
 function di_crawler_get_api_status(){
@@ -39,6 +60,10 @@ function di_crawler_get_api_status(){
         $response = wp_remote_get($furnizor->url_furnizor . '/wp-json/' . $furnizor->api_token . '/status/');
         $response = wp_remote_retrieve_body($response);
         $response = json_decode($response);
+
+// 
+// De citit si api token si verificat
+// 
 
         if(isset($response->code)){
             if($response->code === "rest_no_route"){
@@ -55,41 +80,70 @@ function di_crawler_get_api_status(){
 ?>
 <style>
 
-.furnizor-activ{
-    color: green;
-}
-.furnizor-inactiv{
-    color: red;
-}
+    .furnizor-activ{
+        color: green;
+    }
+    .furnizor-inactiv{
+        color: red;
+    }
 
 </style>
 
 <div class="wrap">
     
-    <h1>di Crawler de produse</h1>
-    <h3>Furnizori</h3>
-    
-    <button class="button button-secondary">Adauga furnizor</button>
+    <h1>Retailromania API</h1>
+    <h3>Parteneri</h3>
+    <div style="margin-bottom: 10px;">
+    <button class="button button-secondary" onclick="switchAddForm();">Adauga partener</button>
     <a href="admin.php?page=di-crawler-admin-furnizori" class="button button-secondary">Reincarca</a>
-    <div>
+    </div>
+    
+    <div id="add-furnizor-form-container" style="display:none;margin:0 0 10px 0;">
         <form id='add-furnizor-form' method="POST" action='admin.php?page=di-crawler-admin-furnizori'>
             <table>
                 <tbody>
 
                     <tr>
-                        <th scope="row">
-                            <label for='nume_furnizor'>Nume furnizor</label>
+                        <th scope="row" style="text-align:right;">
+                            <label for='nume_furnizor' style="text-align:right;">Nume partener</label>
                         </th>
                         <td>
-                            <input name='nume_furnizor' type='text' id='nume_furnizor' class='regulat-text'>
+                            <input name='nume_furnizor' type='text' id='nume-okfurnizor' class='regulat-text'>
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">
-                            <label for='url_furnizor'>Url furnizor</label>
+                        <th scope="row" style="text-align:right;">
+                            <label for='url_furnizor' style="text-align:right;">Url partener</label>
                         </th>
                         <td>
-                            <input name='url_furnizor' type='url' id='url_furnizor' class='regulat-text'>
+                            <input name='url_furnizor' type='url' id='url-furnizor' class='regulat-text'>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row" style="text-align:right;">
+                            <label for='shipping_furnizor' style="text-align:right;">AWB in numele</label>
+                        </th>
+                        <td>
+                            <select name='shipping_furnizor' id='shipping-furnizor'>
+                                <option value='1'>Retailromania</option>
+                                <option value='0'>Partenerul</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row" style="text-align:right;">
+                            <label for='shipping_rate_furnizor' style="text-align:right;">Valoare taxa de livrare</label>
+                        </th>
+                        <td>
+                            <input name='shipping_rate_furnizor' type='number' id='shipping-rate-furnizor' class='regulat-text'>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row" style="text-align:right;">
+                            <label for='shipping_free_furnizor' style="text-align:right;">Limită transport gratuit</label>
+                        </th>
+                        <td>
+                            <input name='shipping_free_furnizor' type='number' id='shipping-free-furnizor' class='regulat-text'>
                         </td>
                     </tr>
                     <tr>
@@ -121,6 +175,12 @@ function di_crawler_get_api_status(){
                     Website
                 </th>
                 <th>
+                    Cine livreaza
+                </th>
+                <th>
+                    Taxa de livrare
+                </th>
+                <th>
                     API Token
                 </th>
                 <th>
@@ -144,6 +204,19 @@ function di_crawler_get_api_status(){
                     else{
                         $api_status = '<span class="furnizor-inactiv">Inactiv</span>';
                     }
+
+                    $shipping_class = json_decode($rand_furnizor->shipping_class);
+
+                    if($rand_furnizor->shipping === "1"){
+                        $shipping_name = $rand_furnizor->nume_furnizor;
+                    }
+                    else if($rand_furnizor->shipping === "0"){
+                        $shipping_name = "Retailromania";
+                    }
+                    else{
+                        $shipping_name = "Unknown";
+                    }
+
                     echo "<tr>
                         <td class='check-column' style='text-align:center;'>
                             $indexId 
@@ -174,6 +247,13 @@ function di_crawler_get_api_status(){
                             $rand_furnizor->url_furnizor
                         </td>
                         <td>
+                            $shipping_name
+                        </td>
+                        <td>
+                            $shipping_class->rate RON
+                            (pana in $shipping_class->free RON)
+                        </td>
+                        <td>
                             $rand_furnizor->api_token
                         </td>
                         <td>
@@ -193,3 +273,15 @@ function di_crawler_get_api_status(){
 </div>
 
 <script src='<?php echo plugin_dir_url(__DIR__); ?>add-furnizor.js'></script>
+<script>
+
+    function switchAddForm(){
+        let formContainer = document.getElementById("add-furnizor-form-container");
+        
+        if(formContainer.style.display === "none"){
+            formContainer.style.display = "block";
+        } else {
+            formContainer.style.display = "none";
+        }
+    }
+</script>

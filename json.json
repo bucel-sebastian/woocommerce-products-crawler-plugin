@@ -1,0 +1,67 @@
+object(WP_Term)#13082 (10) {
+    [
+        "term_id"
+    ]=> int(49) [
+        "name"
+    ]=> string(3) "1kg"[
+        "slug"
+    ]=> string(3) "1kg"[
+        "term_group"
+    ]=> int(0) [
+        "term_taxonomy_id"
+    ]=> int(49) [
+        "taxonomy"
+    ]=> string(9) "pa_gramaj"[
+        "description"
+    ]=> string(0) ""[
+        "parent"
+    ]=> int(0) [
+        "count"
+    ]=> int(26) [
+        "filter"
+    ]=> string(3) "raw"
+} object(WP_Term)#12992 (10) {
+    [
+        "term_id"
+    ]=> int(47) [
+        "name"
+    ]=> string(4) "250g"[
+        "slug"
+    ]=> string(4) "250g"[
+        "term_group"
+    ]=> int(0) [
+        "term_taxonomy_id"
+    ]=> int(47) [
+        "taxonomy"
+    ]=> string(9) "pa_gramaj"[
+        "description"
+    ]=> string(0) ""[
+        "parent"
+    ]=> int(0) [
+        "count"
+    ]=> int(26) [
+        "filter"
+    ]=> string(3) "raw"
+} object(WP_Term)#13069 (10) {
+    [
+        "term_id"
+    ]=> int(48) [
+        "name"
+    ]=> string(4) "500g"[
+        "slug"
+    ]=> string(4) "500g"[
+        "term_group"
+    ]=> int(0) [
+        "term_taxonomy_id"
+    ]=> int(48) [
+        "taxonomy"
+    ]=> string(9) "pa_gramaj"[
+        "description"
+    ]=> string(0) ""[
+        "parent"
+    ]=> int(0) [
+        "count"
+    ]=> int(26) [
+        "filter"
+    ]=> string(3) "raw"
+}

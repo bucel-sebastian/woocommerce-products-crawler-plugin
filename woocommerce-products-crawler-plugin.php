@@ -41,11 +41,7 @@ if( !class_exists('Di_Crawler') ) {
             if( is_admin() ) {
                 require_once DI_CRAWLER_DIR . '/includes/admin/di_crawler_admin.php';
             }
-            else {
-
-            }
-
-
+            
             $dbTableFurnizori = $wpdb->prefix . 'di_crawler_furnizori';
             $dbTableFurnizoriSql = 'CREATE TABLE `' . $dbTableFurnizori . '` (
                     `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -57,6 +53,8 @@ if( !class_exists('Di_Crawler') ) {
                     `add_date` datetime NOT NULL,
                     `add_author` varchar(10) NOT NULL,
                     `last_fetch` datetime,
+                    `shipping` varchar(10) NOT NULL,
+                    `shipping_class` varchar(255) NOT NULL,
                     PRIMARY KEY (`id`)
                 )';
             maybe_create_table($dbTableFurnizori,$dbTableFurnizoriSql);
@@ -78,7 +76,7 @@ if( !class_exists('Di_Crawler') ) {
             $dbTableFetchedProductsDataSql = 'CREATE TABLE `' . $dbTableFetchedProductsData . '` (
                     `id` int(11) NOT NULL AUTO_INCREMENT,
                     `product_id` varchar(255) NOT NULL,
-                    `furnizor_id` varchar(255) NOT NULL,com
+                    `furnizor_id` varchar(255) NOT NULL,
                     `fetched_date` datetime NOT NULL,
                     `furnizor_product_id` varchar(255),
                     `is_full_fetchable` int(11) NOT NULL,
@@ -99,23 +97,17 @@ if( !class_exists('Di_Crawler') ) {
                     PRIMARY KEY (`id`)
                 )';
                 maybe_create_table($dbTableOrders,$dbTableOrdersSql);
-            $this->activate_crawler_fetch_cron();
+            
         }
 
         
 
-        public function activate_crawler_fetch_cron() {
-            if( !wp_next_scheduled('di_crawler_fetch_selected_products') ){
-                wp_schedule_event(time(),'daily','di_crawler_fetch_selected_products');
-            }
-        }
+        // public function activate_crawler_fetch_cron() {
+        //     if( !wp_next_scheduled('di_crawler_fetch_selected_products') ){
+        //         wp_schedule_event(time(),'daily','di_crawler_fetch_selected_products');
+        //     }
+        // }
 
-        public function di_crawler_generate_api() {
-            register_rest_route('test/v1','/produs/feed/',array(
-                'methods' => 'GET',
-                'callback' => 'test_api'
-            ));
-        }
     }
 
 

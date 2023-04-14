@@ -112,6 +112,11 @@ if(isset($_GET['action']) && $_GET['action']==='force-fetch'){
     }
 }
 
+if(isset($_GET['action']) && $_GET['action']==='force-fetch-products'){
+    require_once DI_CRAWLER_DIR . '/includes/di_crawler_fetch_selected_products.php';
+    di_crawler_fetch_selected_products();
+}
+
 $num_of_rows = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "di_crawler_fetched_products`");
 $num_of_active_rows = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "di_crawler_fetched_products` WHERE `is_full_fetchable`='1'");
 $num_of_pages = ceil($num_of_rows / 10);
@@ -172,10 +177,20 @@ else{
 <div class="wrap">
         
     <div>
-        <h1>di Crawler de produse</h1>
+        <h1>Retailromania API</h1>
         <h3>Produse</h3>
         
 
+        
+
+        
+        <div style='display:flex;flex-direction:row;align-content:center;align-items:center;margin-bottom:10px;'>
+            <a class='button button-primary' href='admin.php?page=di-crawler-admin-produse&action=force-fetch' style="margin-right:10px;">Force fetch</a>
+            <a class='button button-primary' href='admin.php?page=di-crawler-admin-produse&action=force-fetch-products'>Incarca produsele selectate</a>
+
+            <p style='margin-top:0;margin-bottom:0;margin-left:15px;'>Produse active <?php echo $num_of_active_rows;?> din <?php echo $num_of_rows;?></p>
+
+        </div>
         <div>
             <form action="admin.php?page=di-crawler-admin-produse">
                 <div style='display:flex;flex-direction:row;margin-bottom:10px;'>
@@ -197,16 +212,7 @@ else{
                     <button type='submit' class='button button-primary'>Cauta</button>
                 </div>
             </form>
-        </div>
-
-        
-        <div style='display:flex;flex-direction:row;align-content:center;align-items:center;margin-bottom:10px;'>
-            <a class='button button-primary' href='admin.php?page=di-crawler-admin-produse&action=force-fetch'>Force fetch</a>
-
-            <p style='margin-top:0;margin-bottom:0;margin-left:15px;'>Produse active <?php echo $num_of_active_rows;?> din <?php echo $num_of_rows;?></p>
-
-        </div>
-                
+        </div>     
            
         
         

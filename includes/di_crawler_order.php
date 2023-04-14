@@ -78,7 +78,8 @@ function di_crawler_new_order( $order_id, $order ){
                 "products"=>$produse,
                 "order_data"=>$order_data
         );
-        
+
+
         $order_request = wp_remote_post($date_furnizor->url_furnizor . '/wp-json/' . $date_furnizor->api_token . '/di-crawler-new-order/',
              array(
                 'method' => 'POST',
@@ -87,45 +88,49 @@ function di_crawler_new_order( $order_id, $order ){
 
              if ( ! is_wp_error( $order_request ) ) {
                 $body = json_decode( wp_remote_retrieve_body( $order_request ), true );
-                $wpdb->insert($wpdb->prefix . 'di_crawler_orders',
-            array(
-                'parent_order_id'=>"test-1",
-                'order_product_id'=>wp_remote_retrieve_body($order_request)
-            ),
-            array(
-                "%s",
-                "%s"
-            ));
+                $wpdb->insert($wpdb->prefix.'di_crawler_orders',array(
+                    'parent_order_id'=>$order_id,
+                    'furnizor_id'=>$id_furnizor,
+                    'furnizor_order_id'=>$body->furnizor_order_id,
+                    'order_product_id'=>json_encode($order_products)
+                    
+                ),
+                array(
+                    "%s",
+                ));
             } else {
                 $error_message = $order_request->get_error_message();
-                $wpdb->insert($wpdb->prefix . 'di_crawler_orders',
-            array(
-                'parent_order_id'=>"test-1",
-                'order_product_id'=>$error_message,
-                'order_status'=>wp_remote_retrieve_body($order_request)
-            ),
-            array(
-                "%s",
-                "%s"
-            ));
                 throw new Exception( $error_message );
             }
              
         $order_request = json_decode($order_request);
-        
-        $wpdb->insert(
-            $wpdb->prefix . 'di_crawler_orders',
-            array(
-                'parent_order_id'=>$order_id,
-                'furnizor_id'=>$id_furnizor,
-                'furnizor_order_id'=>$order_request->order_id,
-            ),
-            array(
-                "%s",
-                "%s",
-                "%s" 
-            )
+
+        $suborder_args = array(
+            'parent'=>$order_id,
         );
+        $suborder = new wc_create_order($suborder_args);
+
+        foreach ($produse as $produs) {
+            $product_data = $produs['product_data'];
+
+            $suborder->add_product( wc_get_product($product_data['product_id']), $produs->quantity);
+        }
+        $furnizor_shipping = $date_furnizor->shipping_class;
+        $shipping_rate = $furnizor_shipping['rate'];
+        $shipping_free = $furnizor_shipping['free'];
+
+
+        if($suborder->calculate_totals()<$shipping_free){
+            $fee = new WC_Order_Item_Fee();
+            $fee->set_name( 'Taxa de transport' );
+            $fee->set_amount( $shipping_rate );
+            $fee->set_total( $shipping_rate );
+            
+            $suborder->add_item( $fee );
+        }
+
+        $suborder->calculate_totals();
+        $suborder->save();
         
     }
     

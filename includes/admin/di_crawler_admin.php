@@ -12,9 +12,9 @@ if( !class_exists('Di_crawler_admin') ) {
 
         public function di_crawler_admin_add_menu_page() {
 
-            add_menu_page('di Products Crawler','di Products Crawler','manage_options','di-crawler-admin-menu',array($this,'di_crawler_admin_homepage'),'dashicons-star-filled',8);
+            add_menu_page('Retailromania API','Retailromania API','manage_options','di-crawler-admin-menu',array($this,'di_crawler_admin_homepage'),'dashicons-cart',8);
 
-            add_submenu_page('di-crawler-admin-menu','Furnizori','Furnizori','manage_options','di-crawler-admin-furnizori',array($this,'di_crawler_admin_furnizori'));
+            add_submenu_page('di-crawler-admin-menu','Parteneri','Parteneri','manage_options','di-crawler-admin-furnizori',array($this,'di_crawler_admin_furnizori'));
             add_submenu_page('di-crawler-admin-menu','Categorii','Categorii','manage_options','di-crawler-admin-categori',array($this,'di_crawler_admin_categori'));
             add_submenu_page('di-crawler-admin-menu','Produse','Produse','manage_options','di-crawler-admin-produse',array($this,'di_crawler_admin_produse'));
             add_submenu_page('di-crawler-admin-menu','Comenzi','Comenzi','manage_options','di-crawler-admin-comenzi',array($this,'di_crawler_admin_comenzi'));

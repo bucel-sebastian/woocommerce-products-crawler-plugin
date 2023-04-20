@@ -207,10 +207,10 @@ function di_crawler_get_api_status(){
 
                     $shipping_class = json_decode($rand_furnizor->shipping_class);
 
-                    if($rand_furnizor->shipping === "1"){
+                    if($rand_furnizor->shipping === "0"){
                         $shipping_name = $rand_furnizor->nume_furnizor;
                     }
-                    else if($rand_furnizor->shipping === "0"){
+                    else if($rand_furnizor->shipping === "1"){
                         $shipping_name = "Retailromania";
                     }
                     else{

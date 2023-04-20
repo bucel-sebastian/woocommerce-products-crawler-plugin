@@ -151,7 +151,7 @@ global $wpdb;
                             Taxa de livrare - <?php echo $partner_shipping_rate; ?> Lei
                         </div>
                         <div>
-                            <h3>Subtotal -  Lei</h3>
+                            <h3>Subtotal - <?php echo $partner_subtotal; ?> Lei</h3>
                         </div>
                     </div>
                 </div>

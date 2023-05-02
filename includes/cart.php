@@ -3,6 +3,11 @@
 global $woocommerce;
 global $wpdb;
 
+function di_cart_add_fees(){
+    $woocommerce->cart->add_fee("Taxa de livrare ".$partner_name, $partner_shipping_rate, false);
+
+}
+
 ?>
 
 <form class="woocommerce-cart-form" action="<?php echo esc_url( wc_get_cart_url() ); ?>" method="post">
@@ -11,13 +16,33 @@ global $wpdb;
 
     if( $woocommerce->cart->get_cart_contents_count() === 0 ){
 
-        ?><p>Cosul de cumparaturi este gol</p><?php
+        ?>
+        <style>
+            .rr-cart-is-empty{
+                max-width:1200px;
+                width:100%;
+                margin-top:50px !important;
+                padding: 25px !important;
+                background: #f8f8f8;
+                margin:0 auto;
+                border-radius:15px;
+            }
+            .rr-cart-is-empty h3{
+                text-align:center;
+            }
+
+        </style>
+        <div class="rr-cart-is-empty"><h3>Cosul de cumparaturi este gol...</h3></div><?php
 
         die();
     }
 
     // Get cart details
     $cart_items = $woocommerce->cart->get_cart();
+
+    foreach( $woocommerce->cart->get_fees() as $fee_key => $fee) {
+        $woocommerce->cart->remove_fee($fee_key);
+    }
 
     // Set partners arrays - 0 is Retailromania default
     $list_partner = array("0");
@@ -46,7 +71,9 @@ global $wpdb;
         // Store all products based by their partner id
         array_push($list_partner_products[$product_partner_id], $cart_item);
     }
-
+    if(empty($list_partner_products["0"])){
+        unset($list_partner_products["0"]);
+    }
     foreach ( $list_partner_products as $partner_id => $partner_products ) {
         
         $partner_name = $wpdb->get_var("SELECT `nume_furnizor` FROM `".$wpdb->prefix."di_crawler_furnizori` WHERE `id`='".$partner_id."'");
@@ -77,8 +104,8 @@ global $wpdb;
 
                         <?php
 
+        $partner_subtotal = 0.00;
         foreach ($partner_products as $cart_item_key => $cart_item) {
-            
             $_product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 
             if( $_product->is_sold_individually() ){
@@ -138,7 +165,7 @@ global $wpdb;
 
                 </tr>
             <?php
-
+            $partner_subtotal += $_product->get_price() * $cart_item['quantity'];
         }
 
 
@@ -148,10 +175,14 @@ global $wpdb;
                     </table>
                     <div style="display:flex;justify-content:space-between;border-top:1px solid #1a1a1a55; padding-top: 5px;">
                         <div>
-                            Taxa de livrare - <?php echo $partner_shipping_rate; ?> Lei
+                             <?php echo intval($partner_shipping_free) >= $partner_subtotal ? "Taxa de livrare - ". $partner_shipping_rate . " Lei" : "Transport gratuit";
+                            if(intval($partner_shipping_free) >= $partner_subtotal){
+                                do_action('woocommerce_cart_calculate_fees',array('di_cart_add_fees','partner_shipping_rate'=>$partner_shipping_rate,"partner_name"=>$partner_name));
+                            }
+                               ?> 
                         </div>
                         <div>
-                            <h3>Subtotal - <?php echo $partner_subtotal; ?> Lei</h3>
+                            <h3>Subtotal - <?php echo number_format($partner_subtotal + (intval($partner_shipping_free) >= $partner_subtotal ?  $partner_shipping_rate  : 0),2, ',', '.'); ?> Lei</h3>
                         </div>
                     </div>
                 </div>

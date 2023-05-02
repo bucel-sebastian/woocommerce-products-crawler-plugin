@@ -53,7 +53,7 @@
     }
 
     .di_add_to_cart_button {
-        padding: 7px 25px 7px 55px;
+        padding: 7px 45px;
         font-size: 22px;
         position: relative;
         border: none;
@@ -132,7 +132,14 @@
 
             <form class="variations_form" method="post">
 
-            
+            <?php
+        woocommerce_quantity_input( array(
+            'min_value'   => apply_filters( 'woocommerce_quantity_input_min', 1, $product ),
+            'max_value'   => apply_filters( 'woocommerce_quantity_input_max', $product->get_max_purchase_quantity(), $product ),
+            'step'        => apply_filters( 'woocommerce_quantity_input_step', 1, $product ),
+            'input_value' => isset( $_POST['quantity'] ) ? wc_stock_amount( $_POST['quantity'] ) : apply_filters( 'woocommerce_quantity_input_default_value', 1, $product ),
+        ) );
+    ?>
             <button type="submit" class="di_add_to_cart_button" name="add-to-cart" value="<?php echo esc_attr( $product->get_id() ); ?>"><span class="dashicons dashicons-cart"></span>Adaugă în coș</button>
 
             </form>
@@ -142,3 +149,66 @@
 
         return ob_get_clean();
     }
+
+
+
+
+
+
+    function hide_woocommerce_cart_totals_shipping( $show_shipping ) {
+        $show_shipping = false;
+        return $show_shipping;
+    }
+    add_filter( 'woocommerce_cart_totals_shipping_hidden', 'hide_woocommerce_cart_totals_shipping' );
+    
+    
+
+function di_woocommerce_cart_totals_shortcode() {
+    ob_start();
+    ?>
+    <style>
+
+        .woocommerce-shipping-totals{
+            display:none !important;
+        }
+        .cart-subtotal{
+            display:none !important;
+        }
+    </style>
+<?php
+    woocommerce_cart_totals();
+    return ob_get_clean();
+}
+
+add_shortcode('di_woocommerce_cart_totals', 'di_woocommerce_cart_totals_shortcode');
+
+
+remove_filter( 'woocommerce_widget_cart_proceed_to_checkout_text', 'custom_proceed_to_checkout_text' );
+
+function custom_proceed_to_checkout_button() {
+    ?>
+    <a href="<?php echo esc_url( wc_get_checkout_url() ); ?>" class="checkout-button button alt wc-forward"><?php esc_html_e( 'Finalizează Comanda', 'woocommerce' ); ?></a>
+    <?php
+}
+add_action( 'woocommerce_widget_cart_proceed_to_checkout', 'custom_proceed_to_checkout_button' );
+
+
+function di_checkout_login_register(){
+    ob_start();
+
+    ?>
+    <div>
+        <div>
+            <?php woocommerce_login_form(); ?>
+        </div>
+        <div>
+        </div>
+    </div>
+
+<?php
+
+    return ob_get_clean();
+}
+
+add_shortcode('di_checkout_login_register','di_checkout_login_register');
+

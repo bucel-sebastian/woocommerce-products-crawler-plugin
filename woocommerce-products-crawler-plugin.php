@@ -46,6 +46,7 @@ if( !class_exists('Di_Crawler') ) {
             $dbTableFurnizoriSql = 'CREATE TABLE `' . $dbTableFurnizori . '` (
                     `id` int(11) NOT NULL AUTO_INCREMENT,
                     `nume_furnizor` varchar(255) NOT NULL,
+                    `slug_furnizor` varchar(255) NOT NULL,
                     `url_furnizor` varchar(255) NOT NULL,
                     `api_token` varchar(255),
                     `api_status` varchar(10) NOT NULL,

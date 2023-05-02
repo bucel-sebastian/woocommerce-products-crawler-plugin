@@ -277,4 +277,115 @@ function di_cart_table() {
 }
 
 
-?>
+add_filter( 'manage_edit-shop_order_columns', 'add_partner_order_column', 20);
+function add_partner_order_column( $columns ){
+
+    $new_columns = array();
+
+    foreach($columns as $key => $value){
+        $new_columns[ $key ] = $value;
+        if( 'order_number' === $key ){
+            $new_columns['partner_column'] = __( 'Partener', 'woocommerce');
+        }
+    }
+
+    return $new_columns;
+}
+
+add_action( 'manage_shop_order_posts_custom_column', 'partner_shop_order_column_content' );
+function partner_shop_order_column_content( $column ) {
+    global $post;
+    global $wpdb;
+
+    if ( 'partner_column' === $column ) {
+        $partner_id = $wpdb->get_var("SELECT `furnizor_id` FROM `".$wpdb->prefix."di_crawler_orders` WHERE `parent_order_id`='".$post->ID."'");
+        $partner_name = $wpdb->get_var("SELECT `nume_furnizor` FROM `".$wpdb->prefix."di_crawler_furnizori` WHERE `id`='".$partner_id."'"); 
+        echo $partner_name === null ? "-" : $partner_name ;
+        // echo "merge?";
+    }
+}
+
+
+
+function di_send_order_canceled_api( $order_id ){
+
+    $order = wc_get_order( $order_id );
+
+    
+
+
+
+}
+
+
+
+add_action( 'woocommerce_order_status_cancelled','di_send_order_canceled_api');
+
+
+function di_remove_downloads( $items ){
+    unset($items['downloads']);
+    return $items;
+}
+
+add_filter( 'woocommerce_account_menu_items', 'di_remove_downloads');
+
+
+
+function di_add_cancel_button( $order ){
+    // $wp_cancel_order = new WC_Cancel_Order();
+    // // $wp_cancel_order->add_cancel_link($order);
+    // // $key = get_post_meta($order->get_id(),'_wc_cancel_key',true);
+	// // 		echo '<p><a href="'.get_home_url(get_current_blog_id(),'/guest-cancel-req/?key='.$key).'">'.__('Cancel Order','wc-cancel-order').'</a></p>';
+
+    // if(!$wp_cancel_order->is_declined_in_past($order) && is_a($order,'WC_Order') && $order->has_status($wp_cancel_order->get_status($wp_cancel_order->settings['req-status']))){
+    //     // $actions['wc-cancel-order'] = array(
+    //     //     'url'=>wp_nonce_url(admin_url('admin-ajax.php?action=wc_cancel_request&order_id='.$order->get_id().'&order_num='.$order->get_order_number()),'wc-cancel-request'),
+    //     //     'name'=> __('Cancel Request','wc-cancel-order'),
+    //     //     'action'=>'cancel-request',
+    //     // );
+
+    //     $cancel_action = "<a href='".wp_nonce_url(admin_url('admin-ajax.php?action=wc_cancel_request&order_id='.$order->get_id().'&order_num='.$order->get_order_number()),'wc-cancel-request')."'>Anuleaza comanda</a>";
+    // }
+    // echo $cancel_action;
+    // // $actions = apply_filters('wc_cancel_order_btn',$actions,$order);
+
+    echo "<p>*Factura este trimisa fizic de către partenerul nostru.</p>";
+}
+
+
+add_action( 'woocommerce_order_details_after_order_table', 'di_add_cancel_button');
+
+
+
+add_filter( 'woocommerce_cart_totals_order_total_html', 'custom_cart_total_html', 10, 1 );
+
+function custom_cart_total_html( $value) {
+    global $woocommerce;
+
+    $value =$woocommerce->cart->get_cart_total() . " (TVA inclus)";
+    return $value ;
+}
+
+add_action( 'woocommerce_before_edit_address_form', 'custom_add_new_address_button' );
+
+function custom_add_new_address_button() {
+    global $wp;
+
+    // Verificați dacă utilizatorul este conectat
+    if ( is_user_logged_in() ) {
+
+        // Obțineți URL-ul actual al paginii
+        $current_url = home_url( add_query_arg( array(), $wp->request ) );
+
+        // Obțineți URL-ul de adăugare a adresei
+        $add_address_url = wc_get_endpoint_url( 'edit-address', 'billing' );
+
+        // Adăugați butonul "Adaugă adresă nouă"
+        echo '<a class="button" href="' . esc_url( $current_url . $add_address_url ) . '">' . esc_html__( 'Adaugă adresă nouă', 'woocommerce' ) . '</a>';
+    }
+}
+
+function load_dashicons_front_end() {
+    wp_enqueue_style( 'dashicons' );
+  }
+  add_action( 'wp_enqueue_scripts', 'load_dashicons_front_end' );

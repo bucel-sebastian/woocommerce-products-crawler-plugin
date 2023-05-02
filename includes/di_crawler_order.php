@@ -105,32 +105,32 @@ function di_crawler_new_order( $order_id, $order ){
              
         $order_request = json_decode($order_request);
 
-        $suborder_args = array(
-            'parent'=>$order_id,
-        );
-        $suborder = new wc_create_order($suborder_args);
+        // $suborder_args = array(
+        //     'parent'=>$order_id,
+        // );
+        // $suborder = new wc_create_order($suborder_args);
 
-        foreach ($produse as $produs) {
-            $product_data = $produs['product_data'];
+        // foreach ($produse as $produs) {
+        //     $product_data = $produs['product_data'];
 
-            $suborder->add_product( wc_get_product($product_data['product_id']), $produs->quantity);
-        }
-        $furnizor_shipping = $date_furnizor->shipping_class;
-        $shipping_rate = $furnizor_shipping['rate'];
-        $shipping_free = $furnizor_shipping['free'];
+        //     $suborder->add_product( wc_get_product($product_data['product_id']), $produs->quantity);
+        // }
+        // $furnizor_shipping = $date_furnizor->shipping_class;
+        // $shipping_rate = $furnizor_shipping['rate'];
+        // $shipping_free = $furnizor_shipping['free'];
 
 
-        if($suborder->calculate_totals()<$shipping_free){
-            $fee = new WC_Order_Item_Fee();
-            $fee->set_name( 'Taxa de transport' );
-            $fee->set_amount( $shipping_rate );
-            $fee->set_total( $shipping_rate );
+        // if($suborder->calculate_totals()<$shipping_free){
+        //     $fee = new WC_Order_Item_Fee();
+        //     $fee->set_name( 'Taxa de transport' );
+        //     $fee->set_amount( $shipping_rate );
+        //     $fee->set_total( $shipping_rate );
             
-            $suborder->add_item( $fee );
-        }
+        //     $suborder->add_item( $fee );
+        // }
 
-        $suborder->calculate_totals();
-        $suborder->save();
+        // $suborder->calculate_totals();
+        // $suborder->save();
         
     }
     
